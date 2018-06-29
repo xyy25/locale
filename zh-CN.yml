@@ -4,6 +4,8 @@
 
 prefix: "&7&l[&b&lL&3&lP&7&l] &c"
 empty: "{0}"
+view-available-commands-prompt: "&3输入 &a/{0} help &3来查看可使用的命令列表。"
+no-permission-for-subcommands: "&3你没有使用子命令的权限。"
 player-online: "&a在线"
 player-offline: "&c离线"
 loading-error: "&c权限数据无法加载，请稍后再试。"
@@ -12,7 +14,9 @@ op-disabled-sponge: "&2请注意，当安装权限插件时，服务器OP状态�
 log-info: "&7&l[&bL&3P&7&l] &3{0}"
 log-warn: "&7&l[&bLuck&3Perms&7&l] &c[警告] {0}"
 log-error: "&7&l[&bLuck&3Perms&7&l] &4[错误] {0}"
-log: "&3日志 &3&l> {0}"
+log: >
+  {PREFIX}&3日志 &3&l> &8(&e{0}&8) [&a{1}&8] (&b{2}&8)\n
+  {PREFIX}&3日志 &3&l> &f{3}
 verbose-log: "&3详细 &3&l> {0}"
 export-log: "&3输出 &3&l> &f{0}"
 export-log-progress: "&3输出 &3&l> &7{0}"
@@ -101,9 +105,8 @@ info-middle: >
   {PREFIX}&f-     &3唯一连接: &a{3}\n
   {PREFIX}&f-     &3正常运行时间: &7{4}\n
   {PREFIX}&f-     &3本地数据: &a{5}&7用户，&a{6}&7组，&a{7}&7权限组轨道\n
-  {PREFIX}&f-     &3环境统计: &a{8}\n
-  {PREFIX}&f-     &3已知权限: &a{9}\n
-  {PREFIX}&f-     &3活动处理器: &7{10}
+debug-start: "&b正在生成调试信息..."
+debug-url: "&a调试数据的网址:"
 create-group-error: "&c创建组&4{0}&c时出错。"
 delete-group-error: "&c删除组&4{0}&c时出错。"
 delete-group-error-default: "&c你不能删除默认组。"
@@ -111,15 +114,12 @@ groups-list: "&a组: &7(名字，权重，权限组轨道)"
 groups-list-entry: "&f-  &3{0} &7- &b{1}"
 groups-list-entry-with-tracks: "&f-  &3{0} &7- &b{1} &7- [&3{2}&7]"
 tracks-list: "&a权限组轨道: {0}"
-listnodes: "&b{0}的权限:"
-listnodes-with-page: "&b{0}的权限:  {1}"
-listnodes-temp: "&b{0}的临时权限:"
-listnodes-temp-with-page: "&b{0}的临时权限:  {1}"
-listparents: "&b{0}的父组"
-listparents-temp: "&b{0}的临时父组:"
-list-tracks: >
-  &b{0}的权限组轨道:\n
-  {1}
+permission-info: "&b{0}的权限:  &7(第 &f{1}&7 页 共 &f{2}&7 页 - &f{3}&7 条目)"
+permission-info-no-data: "&b{0}&a 没有设置任何的权限。"
+parent-info: "&b{0}继承的权限:  &7(第 &f{1}&7 页 共 &f{2}&7 页 - &f{3}&7 条目)"
+parent-info-no-data: "&b{0}&a 没有继承任何的权限。"
+list-tracks: "&b{0}的权限组轨道:"
+list-tracks-entry: "&a{0}: {1}"
 list-tracks-empty: "&b{0}&a不在任何权限组轨道上。"
 context-pair-inline: "&3{0}=&b{1}"
 context-pair--global-inline: "&e全局"
@@ -194,18 +194,13 @@ user-info-general: >
   {PREFIX}&f- &3UUID: &f{1}\n
   {PREFIX}&f- &3状态: {2}\n
   {PREFIX}&f- &3主组: &f{3}\n
-  {PREFIX}&f- &a统计:\n
-  {PREFIX}&f-    &3节点: &a{4}\n
-  {PREFIX}&f-    &3权限: &a{5}\n
-  {PREFIX}&f-    &3前缀: &a{6}\n
-  {PREFIX}&f-    &3后缀: &a{7}\n
-  {PREFIX}&f-    &3元信息: &a{8}
 user-info-data: >
   {PREFIX}&f- &a缓存数据:\n
   {PREFIX}&f-    &3具有环境数据: {0}\n
   {PREFIX}&f-    &3当前环境: {1}\n
   {PREFIX}&f-    &3当前前缀: {2}\n
   {PREFIX}&f-    &3当前后缀: {3}
+  {PREFIX}&f-    &3元信息: {4}
 info-parent-header: "&f- &a父组:"
 info-temp-parent-header: "&f- &a临时父组:"
 user-removegroup-error-primary: "&a你不能从其主组中删除用户。"
@@ -229,12 +224,6 @@ group-info-general: >
   {PREFIX}&b&l> &b组信息: &f{0}\n
   {PREFIX}&f- &3显示名称: &f{1}\n
   {PREFIX}&f- &3权重: &f{2}\n
-  {PREFIX}&f- &a统计:\n
-  {PREFIX}&f-    &3节点: &a{3}\n
-  {PREFIX}&f-    &3临时权限: &a{4}\n
-  {PREFIX}&f-    &3前缀: &a{5}\n
-  {PREFIX}&f-    &3后缀: &a{6}\n
-  {PREFIX}&f-    &3元信息: &a{7}
 group-set-weight: "&a将组&b{1}&a的权重设置为&b{0}&a。"
 group-set-display-name-doesnt-have: "&b{0}&a没有设置显示名称。"
 group-set-display-name-already-has: "&b{0}&a已经有一个显示名称&b{1}&a。"
@@ -245,7 +234,7 @@ track-info: >
   {PREFIX}&b&l> &b显示权限组轨道: &f{0}\n
   {PREFIX}&f- &7路径: &f{1}
 track-clear: "&b{0}&a的权限组轨道已被清除。"
-track-append-success: "&a组&b{0}&a已成功添加到权限组轨道&b{1}&a。"
+track-append-success: "&a组&b{0}&a已成功添加到权限组轨道&b{1}&a的末端。"
 track-insert-success: "&a组&b{0}&a已成功插入权限组轨道&b{1}&a的&b{2}&a位置。"
 track-insert-error-number: "&c没有预期的数量，而是收到: {0}"
 track-insert-error-invalid-pos: "&c无法插入位置&4{0}&c。&7(无效位置)"
@@ -254,7 +243,9 @@ log-load-error: "&c日志无法加载。"
 log-invalid-page: "&c页码无效。"
 log-invalid-page-range: "&c页码无效，请输入&41&c和&4{0}&c之间的值。"
 log-no-entries: "&b没有日志条目显示。"
-log-entry: "&b#{0} -> &8(&7{1} ago&8) {2}"
+log-entry: >
+  {PREFIX}&b#{0} &8(&7{1} ago&8) &8(&e{2}&8) [&a{3}&8] (&b{4}&8)\n
+  {PREFIX}&7> &f{5}
 log-notify-console: "&c无法切换控制台通知。"   
 log-notify-toggle-on: "&a启用&b记录输出。"
 log-notify-toggle-off: "&c禁用&b记录输出。"
@@ -311,6 +302,9 @@ command-specs:
   info:
     description: "打印通用插件信息"
     usage: "/%s info"
+  debug:
+    description: "输出调试信息"
+    usage: "/%s debug"
   verbose:
     description: "管理详细权限检查"
     usage: "/%s verbose <true|false> [filter]"
@@ -413,6 +407,10 @@ command-specs:
     args:
       "track": "降低用户的权限组轨道"
       "context...": "降低用户使用的环境"
+  user-clone:
+    description: "克隆用户"
+    args:
+      "user": "要克隆到的用户的名字或uuid"
   group-info:
     description: "提供有关组的信息"
   group-listmembers:
@@ -423,6 +421,10 @@ command-specs:
     description: "设置组权重"
     args:
       "weight": "设定权重"
+  group-set-display-name:
+    description: "设置组的显示名称"
+    args:
+      "name": "要设置的名称"
   group-rename:
     description: "重命名组"
     args:
@@ -485,6 +487,9 @@ command-specs:
       "context...": "权限的环境"
   parent-info:
     description: "列出此对象从哪里继承的组"
+    args:
+      "page": "要显示的页数"
+      "sort mode": "条目分类的方式"
   parent-set:
     description: "删除对象已经继承的所有其他组，并将其添加到给定的对象组中。"
     args:
